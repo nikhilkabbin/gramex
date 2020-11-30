@@ -18,7 +18,7 @@ class TestUI(TestGramex):
         ok_('--colorabc: purple' in text, '?colorabc adds --colorabc as a theme color')
 
     def test_ui_theme(self):
-        text = self.check('/ui/theme/bootstrap.scss', headers={'Content-Type': 'text/css'}).text
+        text = self.check('/ui/theme/default.scss', headers={'Content-Type': 'text/css'}).text
         ok_('--primary' in text, 'Compiles SASS')
 
     def check_vars(self, url):
@@ -29,7 +29,7 @@ class TestUI(TestGramex):
         ok_('.ui-import-a{color:blue}' in text, 'vars: cascaded into @import')
 
     def test_vars(self):
-        self.check_vars('/ui/theme/bootstrap.scss')
+        self.check_vars('/ui/theme/default.scss')
 
     def test_sass2(self):
         self.check_vars('/uitest/sass2')
