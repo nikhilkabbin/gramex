@@ -5,9 +5,17 @@ url:
     pattern: /$YAMLURL/(.*)
     handler: FileHandler
     kwargs:
-      path:
-        'theme/(.*)': $YAMLPATH/theme/{0}
-        '(.*)': $YAMLPATH/node_modules/{0}
+      path: $YAMLPATH/node_modules/
+      index: true
+      auth: false
+      headers:
+        Cache-Control: public, max-age=86400
+
+  apps/ui/theme-$*:
+    pattern: /$YAMLURL/theme/(.*)
+    handler: FileHandler
+    kwargs:
+      path: $YAMLPATH/theme/
       index: true
       sass: '*.scss, *.sass'
       auth: false
