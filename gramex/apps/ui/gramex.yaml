@@ -6,7 +6,7 @@ url:
     handler: FileHandler
     kwargs:
       path:
-        'theme/(.*)': $YAMLPATH/node_modules/theme/{0}
+        'theme/(.*)': $YAMLPATH/theme/{0}
         '(.*)': $YAMLPATH/node_modules/{0}
       index: true
       sass: '*.scss, *.sass'
