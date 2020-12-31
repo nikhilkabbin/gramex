@@ -950,7 +950,10 @@ class TestPPTGen(TestCase):
 
     def chart_data(self, shape):
         return pd.read_excel(
-            io.BytesIO(shape.chart.part.chart_workbook.xlsx_part.blob), index_col=0).fillna('')
+            io.BytesIO(shape.chart.part.chart_workbook.xlsx_part.blob),
+            index_col=0,
+            engine='openpyxl',
+        ).fillna('')
 
     def test_chart(self, slides=[10]):
         data = pd.DataFrame({
