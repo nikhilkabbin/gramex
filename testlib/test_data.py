@@ -615,7 +615,7 @@ class TestDownload(unittest.TestCase):
 
     def test_download_excel(self):
         out = gramex.data.download(self.dummy, format='xlsx')
-        afe(pd.read_excel(io.BytesIO(out)), self.dummy, engine='openpyxl')
+        afe(pd.read_excel(io.BytesIO(out), engine='openpyxl'), self.dummy)
 
         out = gramex.data.download({'dummy': self.dummy, 'sales': self.sales}, format='xlsx')
         result = pd.read_excel(io.BytesIO(out), sheet_name=None, engine='openpyxl')

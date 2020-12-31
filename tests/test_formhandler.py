@@ -247,7 +247,7 @@ class TestFormHandler(TestGramex):
         eq_(out.headers.get('Content-Disposition'), None)
 
         out = self.get('/formhandler/file?_format=xlsx')
-        afe(pd.read_excel(BytesIO(out.content)), self.sales, engine='openpyxl')
+        afe(pd.read_excel(BytesIO(out.content), engine='openpyxl'), self.sales)
         eq_(out.headers['Content-Type'], xlsx_mime_type)
         eq_(out.headers['Content-Disposition'], 'attachment;filename=data.xlsx')
 
