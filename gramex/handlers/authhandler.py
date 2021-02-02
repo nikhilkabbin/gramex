@@ -241,7 +241,7 @@ class GoogleAuth(AuthHandler, GoogleOAuth2Mixin):
         }
         code = self.get_arg('code', '')
         if code:
-            access = yield self.get_authenticated_user(
+            access = self.oauth_response = yield self.get_authenticated_user(
                 redirect_uri=self.xredirect_uri,
                 code=code)
             user = yield self.oauth2_request(
