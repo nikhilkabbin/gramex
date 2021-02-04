@@ -269,6 +269,22 @@ class GoogleAuth(AuthHandler, GoogleOAuth2Mixin):
                 response_type='code',
                 extra_params=extra_params)
 
+    # @coroutine
+    # def refresh_token(self, token):
+    #     body = urllib_parse.urlencode({
+    #         "refresh_token": token,
+    #         "client_id": self.settings[self._OAUTH_SETTINGS_KEY]['key'],
+    #         "client_secret": self.settings[self._OAUTH_SETTINGS_KEY]['secret'],
+    #         "grant_type": "refresh_token",
+    #     })
+    #     response = yield http.fetch(
+    #         self._OAUTH_ACCESS_TOKEN_URL,
+    #         method="POST",
+    #         headers={'Content-Type': 'application/x-www-form-urlencoded'},
+    #         body=body)
+    #     self.current_user.update(response)
+    #     self.set_user(self.current_user)
+
 
 class SimpleAuth(AuthHandler):
     '''
