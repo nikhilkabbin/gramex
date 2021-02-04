@@ -125,6 +125,7 @@ class AuthHandler(BaseHandler):
         info = _user_info.load(_user_id)
         info.update(kwargs)
         _user_info.dump(_user_id, info)
+        return info
 
     @coroutine
     def set_user(self, user, id):
@@ -163,7 +164,10 @@ class AuthHandler(BaseHandler):
                     if not gramex.data.pd.isnull(val)
                 })
 
-        self.update_user(user[id], active='y', **user)
+        # Persist user attributes (e.g. refresh_token from Google auth.)
+        # If new user object doesn't have anything from previous login, restore it.
+        info = self.update_user(user[id], active='y', **user)
+        merge(self.session[self.session_user_key], info, mode='setdefault')
 
         # If session_inactive: is specified, set expiry date on the session
         if self.session_inactive is not None:
@@ -268,22 +272,6 @@ class GoogleAuth(AuthHandler, GoogleOAuth2Mixin):
                 scope=scope,
                 response_type='code',
                 extra_params=extra_params)
-
-    # @coroutine
-    # def refresh_token(self, token):
-    #     body = urllib_parse.urlencode({
-    #         "refresh_token": token,
-    #         "client_id": self.settings[self._OAUTH_SETTINGS_KEY]['key'],
-    #         "client_secret": self.settings[self._OAUTH_SETTINGS_KEY]['secret'],
-    #         "grant_type": "refresh_token",
-    #     })
-    #     response = yield http.fetch(
-    #         self._OAUTH_ACCESS_TOKEN_URL,
-    #         method="POST",
-    #         headers={'Content-Type': 'application/x-www-form-urlencoded'},
-    #         body=body)
-    #     self.current_user.update(response)
-    #     self.set_user(self.current_user)
 
 
 class SimpleAuth(AuthHandler):
