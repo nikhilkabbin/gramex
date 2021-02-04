@@ -15,7 +15,7 @@ from orderedattrdict import AttrDict
 import gramex
 import gramex.cache
 from gramex.http import UNAUTHORIZED, FORBIDDEN
-from gramex.config import app_log, objectpath, str_utf8
+from gramex.config import app_log, objectpath, str_utf8, merge
 from gramex.transforms import build_transform
 from .basehandler import BaseHandler, build_log_info
 
@@ -241,12 +241,13 @@ class GoogleAuth(AuthHandler, GoogleOAuth2Mixin):
         }
         code = self.get_arg('code', '')
         if code:
-            access = self.oauth_response = yield self.get_authenticated_user(
+            access = yield self.get_authenticated_user(
                 redirect_uri=self.xredirect_uri,
                 code=code)
             user = yield self.oauth2_request(
                 'https://www.googleapis.com/oauth2/v1/userinfo',
                 access_token=access['access_token'])
+            merge(user, access, mode='setdefault')
             yield self.set_user(user, id='email')
             self.session['google_access_token'] = access['access_token']
             self.redirect_next()
@@ -258,7 +259,7 @@ class GoogleAuth(AuthHandler, GoogleOAuth2Mixin):
             scope = list(set(scope) | {'profile', 'email'})
             # Ensure extra_params has auto approval prompt
             extra_params = self.kwargs.get('extra_params', {})
-            if 'approval_prompt' not in extra_params:
+            if 'approval_prompt' not in extra_params and 'prompt' not in extra_params:
                 extra_params['approval_prompt'] = 'auto'
             # Return the list
             yield self.authorize_redirect(
