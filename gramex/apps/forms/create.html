@@ -32,6 +32,7 @@
       {% set _config[k] = [json.loads(item) for item in v] %}
     {% end %}
   {% end %}
+  {% set requires = json.load(open('requires.json')) %}
 
   {% include template-navbar.html %}
   <div class="container py-4">
@@ -56,6 +57,36 @@
     </div>
     <h3>Step 2 - Configure form</h3>
     <div class="divider"></div>
+
+    <h5>Available Collections</h5>
+    <p>Select dependencies for your components.</p>
+    <button class="btn btn-primary my-2" data-toggle="collapse" href="#collapseDependencies" role="button" aria-expanded="false" aria-controls="collapseDependencies">
+      Select
+    </button>
+    <div class="collapse" id="collapseDependencies">
+      <div class="card card-body">
+        <form class="collections">
+          {% for collection, vals in requires.items() %}
+            <div class="form-check py-2 px-0">
+              <input type="checkbox" class="px-2" name="collection" id="collection-{{ collection }}" value="{{ collection }}">
+              <label data-type="checkbox" class="px-2" for="collection-{{ collection }}">
+                {{ collection }}
+              </label>
+              {% if 'scripts' in vals %}
+                <small id="text-input-help" class="form-text text-muted">
+                  scripts: {{ [val for val in vals['scripts']] }}
+                </small>
+              {% end %}
+              {% if 'stylesheets' in vals %}
+                <small id="text-input-help" class="form-text text-muted">
+                  stylesheets: {{ [val for val in vals['stylesheets']] }}
+                </small>
+              {% end %}
+            </div>
+          {% end %}
+        </form>
+      </div>
+    </div>
 
     <div class="card-deck step-2">
       <div class="card border-0">

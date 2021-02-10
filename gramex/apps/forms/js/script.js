@@ -4,12 +4,14 @@
 let editor
 const options = {}
 const template = {}
+let scripts = []
 
 fetch('snippets/snippets.json')
   .then(response => response.json())
   .then(json => {
     _.each(json, (val, dir) => {
       options[dir] = val.options
+      scripts[dir] = val.requires
       const tmpl = template[dir] = _.template(val.template)
       let vals = _.mapValues(options[dir], v => v.value)
       $(tmpl(vals))
@@ -50,7 +52,8 @@ $('body').on('click', '#publish-form', function() {
   let _md = {
     name: $('#form-name').val() || 'Untitled',
     categories: [],
-    description: $('#form-description').val()
+    description: $('#form-description').val(),
+    collections: $('.collections').serialize()
   }
   let form_vals = {}
   $('.user-form .form-group, .user-form .form-check').each(function(ind, item) {

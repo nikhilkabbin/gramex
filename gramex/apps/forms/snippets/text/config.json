@@ -27,5 +27,8 @@
       "value": "text-input",
       "help": "Useful for mapping submission values"
     }
-  }
+  },
+  "requires": [
+    "bootstrap@4"
+  ]
 }

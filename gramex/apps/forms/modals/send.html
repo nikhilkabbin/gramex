@@ -38,7 +38,7 @@
                 Below code renders the form in place.
               </p>
               <pre>
-                <code>{% apply escape %}<link rel="stylesheet" href="{{ _url }}/ui/bootstrap/dist/css/bootstrap.min.css">
+                <code>{% apply escape %}<link rel="stylesheet" href="{{ _url }}/{{ requires['bootstrap@4']['scripts'][1] }}">
 <script src="{{ _url }}/ui/jquery/dist/jquery.min.js"></script>
 <div class="form-container">
   <script src="{% raw view_url + '.js' %}"></script>
@@ -49,24 +49,13 @@
                 Below code renders the form in <code>.form-container</code> element.
               </p>
               <pre>
-                <code>&lt;link rel="stylesheet" href="{{ _url }}/ui/bootstrap/dist/css/bootstrap.min.css"&gt;
+                <code>&lt;link rel="stylesheet" href="{{ _url }}/{{ requires['bootstrap@4']['scripts'][1] }}"&gt;
 &lt;div class="form-container"&gt;&lt;/div&gt;
 &lt;script src="{{ _url }}/ui/jquery/dist/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script&gt;
   $('.form-container').load("{% raw view_url + '.html' %}")
 &lt;/script&gt;
 &lt;button type="submit" class="btn btn-primary"&gt;Submit&lt;/button&gt;</code>
-              </pre>
-
-              <h4>Server-side rendering</h4>
-              <p>
-                Below snippet is a Gramex server-side rendering example which renders the form in place.
-              </p>
-              <pre>
-                <code>&lt;link rel="stylesheet" href="{{ _url }}/ui/bootstrap/dist/css/bootstrap.min.css"&gt;
-                  {%! import requests %}
-                  {%! raw requests.get('{{ view_url + '.html' }}').text %}
-                </code>
               </pre>
             </div>
 

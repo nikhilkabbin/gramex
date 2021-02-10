@@ -9,6 +9,7 @@
   {% set form_id = handler.path_args[1] %}
   {% set view = 'form' %}
   {% set metadata = json.loads(gramex.data.filter(url=var.FORMS_URL, table=var.FORMS_TABLE, args={'id': [form_id]})['metadata'].values[0]) %}
+  {% set requires = json.load(open('requires.json')) %}
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -72,10 +73,11 @@
     <script src="{{ base }}/node_modules/clipboard/dist/clipboard.min.js"></script>
     <script src="{{ base }}/js/code-highlighting.js"></script>
     <script>
-      /* exported hljs, dragula, form_id, this_view */
+      /* exported hljs, dragula, form_id, this_view, requires */
       const form_id = '{% raw form_id %}'
       const this_view = '{% raw handler.path_args[0] %}'
       let metadata = JSON.parse('{% raw json.dumps(metadata).replace("'", r"\'") %}')
+      let requires = JSON.parse('{% raw json.dumps(requires).replace("'", r"\'") %}')
 
       function update_bg(bg) {
         metadata['bg'] = bg

@@ -1,4 +1,17 @@
-/* globals form_id, hljs, current_form_id, this_view */
+/* globals form_id, hljs, current_form_id, this_view, requires */
+
+function create_script_markup(url) {
+  return `<script src="${url}"></script>`
+}
+
+function create_stylesheet_markup(url) {
+  return `<link href="${url}" rel="stylesheet">`
+}
+
+function create_requirements() {
+  // uses requires.json content read in server-side template
+  let scripts = _.mapValues(requires, 'scripts')['bootstrap@4']
+}
 
 // escape html tags to show source code
 function escapeHtml(unsafe) {
