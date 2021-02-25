@@ -25,10 +25,13 @@ fetch('snippets/snippets.json')
       // component attribute is introduced to know html field
       // type attribute (which is already captured) conflicts with knowing field type since button field has a type attribute
       vals.component = dir
-      $("<div class='field-container'>" + tmpl(vals) + "</div>")
-        .attr('data-type', dir)
-        .attr('data-vals', JSON.stringify(vals))
-        .appendTo('.form-fields')
+      // $("<div class='field-container'>" + '<g-text>' + tmpl(vals) + '</g-text>' + "</div>")
+      if(dir === 'text') {
+        $(tmpl(vals))
+          .attr('data-type', dir)
+          .attr('data-vals', JSON.stringify(vals))
+          .appendTo('.form-fields')
+      }
     })
     $('.edit-properties-container').css('height', $(document).innerHeight())
     // TODO: Can we ensure they all have a common parent class? I'll assume it's .form-group
@@ -65,6 +68,8 @@ fetch('snippets/snippets.json')
           .appendTo('.user-form')
       })
     }
+  }).then(function() {
+    parse_components()
   })
 
 $('body').on('click', '#publish-form', function() {
@@ -190,3 +195,79 @@ $('.edit-properties').on('input change', function () {
 $('.user-form').on('submit', function(e) {
   e.preventDefault()
 })
+
+function parse_components() {
+  document.querySelectorAll('script[type="text/html"][component]').forEach(component => {
+    // Component tags use <prefix-componentname>. Get that componentname after the prefix-.
+    const componentname = component.getAttribute('component').toLowerCase()
+    const confignode = document.querySelector(`script[type="application/json"][component="${componentname}"]`)
+    let config = {}, attrs = []
+
+    if (confignode) {
+      const configtext = confignode.innerHTML.trim()
+      try {
+        // Components MAY have a config defined. If so, they'll be in a script tag with
+        // type="application/json" component="componentname". Parse contents as JSON and store it.
+        config = JSON.parse(configtext)
+        // The configuration MAY have an "options" key. This lists the names of observable attrs
+        attrs = Object.keys(config.options || {})
+      } catch (e) {
+        console.log('Invalid config:', configtext, e)
+      }
+    }
+
+    // Components MUST have a template defined in a script tag with
+    // type="text/html" component="componentname". Parse it as a lodash template
+    const template = _.template(component.innerHTML)
+    class UIFactory extends HTMLElement {
+      connectedCallback() {
+        // Expose attributes as properties
+        attrs.forEach(attr => {
+          Object.defineProperty(this, attr, {
+            get: function () { return this.getAttribute(attr) },
+            set: function (val) { this.setAttribute(attr, val) }
+          })
+        })
+
+        // this._options holds the object passed to the template.
+        // Initialize this._options with default values.
+        this._options = _.mapValues(config.options || {}, 'value')
+        // Override with actual attributes and slots
+        this._options.default = this.innerHTML
+        for (var i=0, len=this.attributes.length; i < len; i++)
+            this._options[this.attributes[i].name] = this.attributes[i].value
+
+        // Remove the contents and store them for future access.
+        // In the template, $('selector') returns the <selector> stored in this component.
+        this._options._contents = document.createDocumentFragment()
+        for (var child of this.querySelectorAll('*'))
+          this._options._contents.appendChild(child)
+        this._options.$ = this._options._contents.querySelector
+        this._options.$$ = this._options._contents.querySelectorAll
+
+        // this.render() re-renders the object based on current options.
+        this.render()
+      }
+
+      render() {
+        this.innerHTML = template(this._options)
+      }
+
+      // The list of attributes to watch for changes on is based on the keys of
+      // config.options, When any of these change, attributeChangedCallback is called.
+      static get observedAttributes() {
+        return attrs
+      }
+
+      // When any attribute changes, update this._options and re-render
+      attributeChangedCallback(name, oldValue, newValue) {
+        if (this._options) {
+          this._options[name] = newValue
+          this.render()
+        }
+      }
+    }
+    customElements.define(`g-${componentname}`, UIFactory)
+  })
+
+}

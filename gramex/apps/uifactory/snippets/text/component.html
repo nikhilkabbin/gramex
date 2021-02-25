@@ -1,8 +1,4 @@
-<g-text>
-  Next <strong>text</strong>
-</g-text>
-
-<script type="text/html" component="text">
+<script type="text/html" component="button">
   <div class="py-2 <%= typeof view !== undefined && view === 'editing' ? 'row' : '' %>">
     <label data-type="text" for="<%= name %>" class="<%= typeof view !== undefined && view === 'editing' ? 'col-sm-3' : '' %>"><%= label %></label>
     <% if(typeof view !== undefined && view === 'editing') { %><div class="col-sm-9"><% } %>
@@ -22,7 +18,7 @@
       "field": "text",
       "label": "Text label",
       "help": "Label for the text field",
-      "value": "Label text"
+      "value": "Text"
     },
     "placeholder": {
       "name": "placeholder",
@@ -46,4 +42,5 @@
     }
   }
 }
+
 </script>
