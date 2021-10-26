@@ -1359,18 +1359,6 @@ def alter(url: str, table: str, columns: dict = None, **kwargs):
 # NoSQL Operations
 # ----------------------------------------
 
-def _type_conversion(param_list, operations=None):
-    try:
-        converted = []
-        if operations == '<' or operations == '<=':
-            converted = min(float(v) for v in param_list)
-        if operations == '>' or operations == '>=':
-            converted = max(float(v) for v in param_list)
-        return converted
-    except ValueError:
-        raise ValueError('Value is not integer: %r' % param_list)
-
-
 _mongodb_op_map = {
     '<': '$lt',
     '<~': '$lte',
@@ -1381,17 +1369,26 @@ _mongodb_op_map = {
 }
 
 
+def _convert_mongodb(col, val, meta_cols):
+    import bson
+    if meta_cols[col].dtype == pd.np.int64:
+        return int
+    # TODO: Figure out whether col is of type Object with as little code
+    elif meta_cols[col].iloc[0] is bson.objectid.ObjectId:
+        return bson.objectid.ObjectId
+    return meta_cols[col].dtype.type
+
+
 def _filter_mongodb_col(col, op, vals, meta_cols):
+    converted_vals = [_convert_mongodb(col, val, meta_cols) for val in vals]
     if op in ['', '!']:
-        return {col: {_mongodb_op_map[op]: vals}}
+        return {col: {_mongodb_op_map[op]: converted_vals}}
     elif op == '!~':
         return {col: {"$not": {"$regex": '|'.join(vals), "$options": 'i'}}}
     elif op == '~':
         return {col: {"$regex": '|'.join(vals), "$options": 'i'}}
     elif col and op in _mongodb_op_map.keys():
-        # TODO: Improve the numpy to Python type
-        convert = int if (meta_cols[col].dtype == pd.np.int64) else meta_cols[col].dtype.type
-        return {col: {_mongodb_op_map[op]: convert(val)} for val in vals}
+        return {col: {_mongodb_op_map[op]: converted_vals} for val in vals}
 
 
 def _mongodb_query(args, meta_cols):
@@ -1487,7 +1484,7 @@ def _update_mongodb(url, controls, args, meta=None, database=None, collection=No
                     id=[], **kwargs):
     table = _mongodb_collection(url, database, collection, **kwargs)
     query = _mongodb_query(args, id)
-    values = {key: val[0] for key, val in args.items()}
+    values = {key: val[0] for key, val in args.items() if key not in id}
     result = table.update_many(query, {'$set': _mongodb_json(values)})
     return result.modified_count
 
